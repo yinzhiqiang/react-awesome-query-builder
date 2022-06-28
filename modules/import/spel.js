@@ -635,7 +635,9 @@ const convertToTree = (spel, conv, config, meta, parentSpel = null) => {
       const vals = convertChildren();
       const fieldObj = vals[0];
       let convertedArgs = vals.slice(1);
-      opKey = opKeys[0];
+      if(!opKey){
+        opKey = opKeys[0];
+      }      
       
       if (!fieldObj) {
         // LHS can't be parsed
@@ -673,7 +675,7 @@ const convertToTree = (spel, conv, config, meta, parentSpel = null) => {
 
           //todo: it's naive
           const widgets = opKeys.map(op => ({op, widget: getWidgetForFieldOp(config, field, op)}));
-          if (op == "eq") {
+          if (op == "eq" && opKey !== "is_null") {
             const ws = widgets.find(({op, widget}) => (widget != "field"));
             opKey = ws.op;
           }
