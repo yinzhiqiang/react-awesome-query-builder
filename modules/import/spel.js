@@ -6,6 +6,7 @@ import {loadTree} from "./tree";
 import {defaultConjunction, defaultGroupConjunction} from "../utils/defaultUtils";
 import {logger} from "../utils/stuff";
 import moment from "moment";
+import _ from "lodash";
 
 export const loadFromSpel = (logicTree, config) => {
   return _loadFromSpel(logicTree, config, true);
@@ -376,6 +377,7 @@ const convertArg = (spel, conv, config, meta, parentSpel) => {
       [".startsWith"]: "starts_with",
       [".endsWith"]: "ends_with",
       ["$contains"]: "select_any_in",
+      [".isInIpRange"]: "is_in_ip_range",
     };
 
     const convertedArgs = args.map(v => convertArg(v, conv, config, meta, {
@@ -457,8 +459,34 @@ const convertArg = (spel, conv, config, meta, parentSpel) => {
         valueType,
         value,
       };
-    } else {
-      // todo: conv.funcs
+    } else if(config.funcs[methodName]){
+      var method = config.funcs[methodName];
+      const {returnType, label, args} = method;
+      if(_.size(args)!=_.size(convertedArgs)){
+        meta.errors.push(`Args size is not match ${_.size(args)}`);
+        return undefined;
+      }
+        for (let index = 0; index < convertedArgs.length; index++) {
+          const convertedArg = convertedArgs[index];
+          const agrName = Object.keys(args)[index];
+          const arg = args[agrName];
+          if(convertedArg.valueType!==arg.type){
+            meta.errors.push(`${arg.label}(args[${index}]) should be ${arg.type}`);
+            return undefined;
+          }
+        }
+        // `foo()` is method, `#foo()` is function
+        // let's use common property `methodName` and just add `isVar` for function
+        let res ={
+          type: "!func",
+          methodName: methodName,
+          isVar: false,
+          args: convertedArgs
+        };
+        return res;
+
+    }else {     
+
       meta.errors.push(`Unsupported method ${methodName}`);
     }
   } else if (spel.type == "op-plus" && parentSpel?.type == "ternary") {
@@ -468,6 +496,31 @@ const convertArg = (spel, conv, config, meta, parentSpel) => {
   }
   return undefined;
 };
+
+const getOpkey =(spel, operators, defaultOperator) =>{
+  if(!spel){
+    return defaultOperator;
+  }
+
+  const {type} = spel;
+  if(!type){
+    return defaultOperator;
+  }
+
+  const key = type.startsWith("op-")?type.substring(3): type;
+  for(var operator in operators){
+    const {spelOp, spelOps} = operators[operator];
+    if(spelOp === key){
+      return operator;
+    }
+
+    if(_.indexOf(spelOps, key)>=0){
+      return operator;
+    }
+  }
+
+  return defaultOperator;
+}
 
 const buildRule = (config, meta, field, opKey, convertedArgs) => {
   if (convertedArgs.filter(v => v === undefined).length) {
@@ -663,7 +716,24 @@ const convertToTree = (spel, conv, config, meta, parentSpel = null) => {
         }
 
         res = buildRuleGroup(fieldObj, opKey, convertedArgs, config, meta);
-      } else {
+      } else if (fieldObj.type === "!func"){
+        //func
+        let res = {
+          type: "rule",
+          id: uuid(),
+          properties: {
+            field: fieldObj.methodName,
+            isFunc: true,
+            operator: opKey,
+            value: convertedArgs.map(v => v.value),
+            valueSrc: convertedArgs.map(v => v.valueSrc),
+            valueType: convertedArgs.map(v => {
+              return v.valueType;
+            }),
+          }
+        };
+        return res;
+      }else {
         // 2. not group
         if (fieldObj.valueSrc != "field") {
           meta.errors.push(`Expected field ${JSON.stringify(fieldObj)}`);

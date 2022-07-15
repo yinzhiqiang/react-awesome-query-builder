@@ -14,10 +14,20 @@ export default class TextWidget extends PureComponent {
     maxLength: PropTypes.number,
   };
 
+  constructor(props) {
+    super(props);
+    this.state = { value: props.value };
+  }
+
   handleChange = (ev) => {
     const v = ev.target.value;
     const val = v === "" ? undefined : v; // don't allow empty value
-    this.props.setValue(val);
+    this.setState({ value: val });
+    // this.props.setValue(val);
+  };
+
+  handleBlur = (ev) => {
+    this.props.setValue(this.state.value);
   };
 
   render() {
@@ -32,11 +42,12 @@ export default class TextWidget extends PureComponent {
           key="widget-text"
           size={renderSize}
           type={"text"}
-          value={aValue}
+          value={this.state.value}
           placeholder={placeholder}
           maxLength={maxLength}
           onChange={this.handleChange}
           {...customProps}
+          onBlur={this.handleBlur}
         />
       </Col>
     );

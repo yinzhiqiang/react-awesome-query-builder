@@ -229,6 +229,11 @@ export const getFieldRawConfig = (config, field, fieldsKey = "fields", subfields
     path.push(part);
     const pathKey = path.join(fieldSeparator);
     fieldConfig = fields[pathKey];
+
+    if(!fieldConfig && fields.name && fields.name.isSpelMap && fields.name.isFake){
+       //map name
+       fieldConfig = fields.name;
+    }
     if (i < parts.length-1) {
       if (fieldConfig && fieldConfig[subfieldsKey]) {
         fields = fieldConfig[subfieldsKey];
