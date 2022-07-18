@@ -333,13 +333,13 @@ export const getFieldConfig = (config, field, isFunc=false) => {
   return ret;
 };
 
-export const getOperatorConfig = (config, operator, field = null) => {
+export const getOperatorConfig = (config, operator, field = null,isFunc=false) => {
   if (!operator)
     return null;
   const opConfig = config.operators[operator];
   if (field) {
-    const fieldConfig = getFieldConfig(config, field);
-    const widget = getWidgetForFieldOp(config, field, operator);
+    const fieldConfig = getFieldConfig(config, field,isFunc);
+    const widget = getWidgetForFieldOp(config, field, operator,isFunc);
     const widgetConfig = config.widgets[widget] || {};
     const fieldWidgetConfig = (fieldConfig && fieldConfig.widgets ? fieldConfig.widgets[widget] : {}) || {};
     const widgetOpProps = (widgetConfig.opProps || {})[operator];

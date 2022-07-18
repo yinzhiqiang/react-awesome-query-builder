@@ -435,9 +435,10 @@ const setOperator = (state, path, newOperator, config) => {
   const properties = state.getIn(expandTreePath(path, "properties"));
   const children = state.getIn(expandTreePath(path, "children1"));
   const currentField = properties.get("field");
-  const fieldConfig = getFieldConfig(config, currentField);
+  const isFunc  = properties.get("isFunc"); 
+  const fieldConfig = getFieldConfig(config, currentField,isFunc);
   const isRuleGroup = fieldConfig.type == "!group";
-  const operatorConfig = getOperatorConfig(config, newOperator, currentField);
+  const operatorConfig = getOperatorConfig(config, newOperator, currentField,isFunc);
   const operatorCardinality = operatorConfig ? defaultValue(operatorConfig.cardinality, 1) : null;
 
   state = state.updateIn(expandTreePath(path, "properties"), (map) => map.withMutations((current) => {
@@ -448,7 +449,7 @@ const setOperator = (state, path, newOperator, config) => {
     const _currentOperator = current.get("operator");
 
     const {canReuseValue, newValue, newValueSrc, newValueType, newValueError} = getNewValueForFieldOp(
-      config, config, current, currentField, newOperator, "operator", true
+      config, config, current, currentField, newOperator, "operator", true, isFunc
     );
     if (showErrorMessage) {
       current = current

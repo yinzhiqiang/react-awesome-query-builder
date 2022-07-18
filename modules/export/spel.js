@@ -276,6 +276,7 @@ const checkOp = (config, operator, field) => {
 const formatRule = (item, config, meta, parentField = null) => {
   const properties = item.get("properties") || new Map();
   const field = properties.get("field");
+  const isFunc = properties.get("isFunc")||false;
   let operator = properties.get("operator");
   if (field == null || operator == null)
     return undefined;
@@ -296,7 +297,25 @@ const formatRule = (item, config, meta, parentField = null) => {
     return undefined;
       
   //format field
-  const formattedField = formatField(meta, config, field, parentField);
+  var formattedField;
+   if(isFunc){
+     var argsConfig =properties.get("args")||[];
+     var args =[];
+    for(var argConfig of argsConfig){
+      const argValue = argConfig.has('value')?argConfig.get('value'):null;
+      const argType = argConfig.has('valueType')?argConfig.get('valueType'):null;
+      if(argType==='text'){
+        args.push(`'${argValue}'`);
+      }else{
+        args.push(argValue);
+      }
+    }
+   
+     formattedField=  `${field}(${args.join(", ")})`;
+   }
+   else{
+    formattedField = formatField(meta, config, field, parentField)
+  };
   
   // format expression
   let res = formatExpression(
@@ -431,7 +450,7 @@ const formatField = (meta, config, field, parentField = null) => {
 };
 
 
-const formatFunc = (meta, config, currentValue, parentField = null) => {
+const formatFunc = (meta, config, currentValue, parentField = null, isFunc=false) => {
   const funcKey = currentValue.get("func");
   const args = currentValue.get("args");
   const funcConfig = getFuncConfig(config, funcKey);
@@ -440,7 +459,7 @@ const formatFunc = (meta, config, currentValue, parentField = null) => {
   let formattedArgs = {};
   for (const argKey in funcConfig.args) {
     const argConfig = funcConfig.args[argKey];
-    const fieldDef = getFieldConfig(config, argConfig);
+    const fieldDef = getFieldConfig(config, argConfig,isFunc);
     const argVal = args ? args.get(argKey) : undefined;
     const argValue = argVal ? argVal.get("value") : undefined;
     const argValueSrc = argVal ? argVal.get("valueSrc") : undefined;
