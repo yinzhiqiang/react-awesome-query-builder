@@ -139,6 +139,8 @@ const createRuleContainer = (Rule) =>
               isLocked={this.props.isLocked}
               isTrueLocked={this.props.isTrueLocked}
               parentReordableNodesCnt={this.props.parentReordableNodesCnt}
+              isFunc={this.props.isFunc || false}
+              args={this.props.args || null}
             /> : null
             ,
             <Rule
@@ -169,6 +171,8 @@ const createRuleContainer = (Rule) =>
               isLocked={this.props.isLocked}
               isTrueLocked={this.props.isTrueLocked}
               parentReordableNodesCnt={this.props.parentReordableNodesCnt}
+              isFunc={this.props.isFunc || false}
+              args={this.props.args || null}
             />
           ]}
         </div>

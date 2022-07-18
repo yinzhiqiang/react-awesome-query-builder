@@ -17,6 +17,7 @@ export default class Operator extends PureComponent {
     readonly: PropTypes.bool,
     //actions
     setOperator: PropTypes.func.isRequired,
+    isFunc: PropTypes.bool,
   };
 
   constructor(props) {
@@ -36,18 +37,38 @@ export default class Operator extends PureComponent {
     }
   }
 
-  getMeta({config, selectedField, selectedOperator}) {
-    const fieldConfig = getFieldConfig(config, selectedField);
-    const operators = fieldConfig?.operators;
-    const operatorOptions 
-      = mapValues(
+  getOperatorOptions(config, fieldConfig, selectedField, isFunc){
+    if(isFunc){
+      var method = config?.funcs?.[selectedField];      
+      if(!method){
+         return undefined;
+      }else{
+        const operators = method?.operators;
+        return {operators: operators,operatorOptions: mapValues(
+          pickBy(
+            config.operators, 
+            (item, key) => operators?.indexOf(key) !== -1
+          ), 
+          (_opts, op) => getOperatorConfig(config, op, selectedField)
+          )}; 
+      }
+    }else{
+      const operators = fieldConfig?.operators;
+      return {operators: operators,operatorOptions: mapValues(
         pickBy(
           config.operators, 
           (item, key) => operators?.indexOf(key) !== -1
         ), 
         (_opts, op) => getOperatorConfig(config, op, selectedField)
-      );
-      
+      )};      
+    }
+  }
+
+  getMeta({config, selectedField, selectedOperator, isFunc}) {
+    const fieldConfig = getFieldConfig(config, selectedField);
+   
+    const {operators, operatorOptions} = this.getOperatorOptions(config, fieldConfig, selectedField, isFunc);
+    
     const items = this.buildOptions(config, operatorOptions, operators);
 
     const isOpSelected = !!selectedOperator;

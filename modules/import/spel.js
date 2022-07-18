@@ -730,6 +730,7 @@ const convertToTree = (spel, conv, config, meta, parentSpel = null) => {
             valueType: convertedArgs.map(v => {
               return v.valueType;
             }),
+            args: fieldObj.args,
           }
         };
         return res;

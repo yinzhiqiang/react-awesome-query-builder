@@ -498,12 +498,13 @@ const setValue = (state, path, delta, value, valueType, config, asyncListValues,
   const operator = state.getIn(expandTreePath(path, "properties", "operator")) || null;
   const operatorConfig = getOperatorConfig(config, operator, field);
   const operatorCardinality = operator ? defaultValue(operatorConfig.cardinality, 1) : null;
+  const isFunc = state.getIn(expandTreePath(path, "properties", "isFunc")) || false;
 
   const isEndValue = false;
   const canFix = false;
   const calculatedValueType = valueType || calculateValueType(value, valueSrc, config);
   const [validateError, fixedValue] = validateValue(
-    config, field, field, operator, value, calculatedValueType, valueSrc, asyncListValues, canFix, isEndValue
+    config, field, field, operator, value, calculatedValueType, valueSrc, asyncListValues, canFix, isEndValue,true, isFunc
   );
     
   const isValid = !validateError;

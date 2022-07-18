@@ -202,7 +202,7 @@ function _extendFieldConfig(fieldConfig, config, path = null, isFuncArg = false)
   }
 }
 
-export const getFieldRawConfig = (config, field, fieldsKey = "fields", subfieldsKey = "subfields") => {
+export const getFieldRawConfig = (config, field, fieldsKey = "fields", subfieldsKey = "subfields", isFunc=false) => {
   if (!field)
     return null;
   if (field == "!case_value") {
@@ -212,6 +212,18 @@ export const getFieldRawConfig = (config, field, fieldsKey = "fields", subfields
       widgets: {
         "case_value": config.widgets["case_value"]
       }
+    };
+  }
+  if(isFunc){
+    const method = config?.funcs?.[field];
+    if(!method){
+      return null;
+    }
+    return {
+      label: method.label,
+      tooltip: method.tooltip,
+      type: method.type,
+      group: method.group,
     };
   }
   const fieldSeparator = config.settings.fieldSeparator;
@@ -299,14 +311,14 @@ export const getFuncArgConfig = (config, funcKey, argKey) => {
   return ret;
 };
 
-export const getFieldConfig = (config, field) => {
+export const getFieldConfig = (config, field, isFunc=false) => {
   if (!field)
     return null;
   if (typeof field == "object" && !field.func && !!field.type)
     return field;
   if (typeof field == "object" && field.func && field.arg)
     return getFuncArgConfig(config, field.func, field.arg);
-  const fieldConfig = getFieldRawConfig(config, field);
+  const fieldConfig = getFieldRawConfig(config, field, "fields", "subfields", isFunc);
   if (!fieldConfig)
     return null; //throw new Error("Can't find field " + field + ", please check your config");
 
@@ -339,14 +351,14 @@ export const getOperatorConfig = (config, operator, field = null) => {
   }
 };
 
-export const getFieldWidgetConfig = (config, field, operator, widget = null, valueSrc = null) => {
+export const getFieldWidgetConfig = (config, field, operator, widget = null, valueSrc = null, isFunc=false) => {
   if (!field)
     return null;
   if (!(operator || widget) && valueSrc != "const" && field != "!case_value")
     return null;
-  const fieldConfig = getFieldConfig(config, field);
+  const fieldConfig = getFieldConfig(config, field, isFunc);
   if (!widget)
-    widget = getWidgetForFieldOp(config, field, operator, valueSrc);
+    widget = getWidgetForFieldOp(config, field, operator, valueSrc,isFunc);
   const widgetConfig = config.widgets[widget] || {};
   const fieldWidgetConfig = (fieldConfig && fieldConfig.widgets ? fieldConfig.widgets[widget] : {}) || {};
   const fieldWidgetProps = (fieldWidgetConfig.widgetProps || {});

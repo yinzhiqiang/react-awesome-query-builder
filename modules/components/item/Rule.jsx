@@ -44,6 +44,8 @@ class Rule extends PureComponent {
     setValue: PropTypes.func,
     setValueSrc: PropTypes.func,
     reordableNodesCnt: PropTypes.number,
+    isFunc: PropTypes.bool,
+    args: PropTypes.array,
   };
 
   constructor(props) {
@@ -130,6 +132,8 @@ class Rule extends PureComponent {
       readonly={immutableFieldsMode || isLocked}
       id={this.props.id}
       groupId={this.props.groupId}
+      isFunc={this.props.isFunc}
+      args={this.props.args}
     />;
   }
 
@@ -153,6 +157,7 @@ class Rule extends PureComponent {
       readonly={immutableOpsMode || isLocked}
       id={this.props.id}
       groupId={this.props.groupId}
+      isFunc={this.props.isFunc}
     />;
   }
 
@@ -177,6 +182,7 @@ class Rule extends PureComponent {
       readonly={immutableValuesMode || isLocked}
       id={this.props.id}
       groupId={this.props.groupId}
+      isFunc={this.props.isFunc}
     />;
 
     return (

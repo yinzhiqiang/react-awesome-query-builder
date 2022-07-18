@@ -295,13 +295,13 @@ export const getValueLabel = (config, field, operator, delta, valueSrc = null, i
   return ret;
 };
 
-function _getWidgetsAndSrcsForFieldOp (config, field, operator = null, valueSrc = null) {
+function _getWidgetsAndSrcsForFieldOp (config, field, operator = null, valueSrc = null, isFunc=false) {
   let widgets = [];
   let valueSrcs = [];
   if (!field)
     return {widgets, valueSrcs};
   const isFuncArg = typeof field == "object" && (!!field.func && !!field.arg || field._isFuncArg);
-  const fieldConfig = getFieldConfig(config, field);
+  const fieldConfig = getFieldConfig(config, field, isFunc);
   const opConfig = operator ? config.operators[operator] : null;
   
   if (fieldConfig && fieldConfig.widgets) {
@@ -361,8 +361,8 @@ function _getWidgetsAndSrcsForFieldOp (config, field, operator = null, valueSrc 
   return {widgets, valueSrcs};
 }
 
-export const getWidgetsForFieldOp = (config, field, operator, valueSrc = null) => {
-  const {widgets} = _getWidgetsAndSrcsForFieldOp(config, field, operator, valueSrc);
+export const getWidgetsForFieldOp = (config, field, operator, valueSrc = null, isFunc=false) => {
+  const {widgets} = _getWidgetsAndSrcsForFieldOp(config, field, operator, valueSrc, isFunc);
   return widgets;
 };
 
@@ -394,8 +394,8 @@ export const getValueSourcesForFieldOp = (config, field, operator, fieldDefiniti
   return filteredValueSrcs;
 };
 
-export const getWidgetForFieldOp = (config, field, operator, valueSrc = null) => {
-  const {widgets} = _getWidgetsAndSrcsForFieldOp(config, field, operator, valueSrc);
+export const getWidgetForFieldOp = (config, field, operator, valueSrc = null,isFunc=false) => {
+  const {widgets} = _getWidgetsAndSrcsForFieldOp(config, field, operator, valueSrc, isFunc);
   let widget = null;
   if (widgets.length)
     widget = widgets[0];

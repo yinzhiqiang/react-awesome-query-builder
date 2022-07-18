@@ -43,6 +43,7 @@ export default class Widget extends PureComponent {
     parentFuncs: PropTypes.array,
     // for case_value
     isCaseValue: PropTypes.bool,
+    isFunc: PropTypes.bool,
   };
 
   constructor(props) {
@@ -87,9 +88,13 @@ export default class Widget extends PureComponent {
     this.props.setValueSrc(delta, srcKey);
   };
 
+  getFieldConfigFromFunc = (config, field) =>{
+
+  }
+
   getMeta({
     config, field: simpleField, fieldFunc, fieldArg, operator, valueSrc: valueSrcs, value: values, 
-    isForRuleGruop, isCaseValue, isFuncArg, leftField, asyncListValues
+    isForRuleGruop, isCaseValue, isFuncArg, leftField, asyncListValues,isFunc,
   }) {
     const field = isFuncArg ? {func: fieldFunc, arg: fieldArg} : simpleField;
     let iValueSrcs = valueSrcs;
@@ -99,9 +104,9 @@ export default class Widget extends PureComponent {
       iValues = Immutable.List([values]);
     }
 
-    const fieldDefinition = getFieldConfig(config, field);
-    const defaultWidget = getWidgetForFieldOp(config, field, operator);
-    const _widgets = getWidgetsForFieldOp(config, field, operator);
+    const fieldDefinition = getFieldConfig(config, field, isFunc);
+    const defaultWidget = getWidgetForFieldOp(config, field, operator, null,isFunc);
+    const _widgets = getWidgetsForFieldOp(config, field, operator,null, isFunc);
     const operatorDefinition = isFuncArg ? funcArgDummyOpDef : getOperatorConfig(config, operator, field);
     if ((fieldDefinition == null || operatorDefinition == null) && !isCaseValue) {
       return null;
@@ -118,11 +123,11 @@ export default class Widget extends PureComponent {
 
     const widgets = range(0, cardinality).map(delta => {
       const valueSrc = iValueSrcs.get(delta) || null;
-      let widget = getWidgetForFieldOp(config, field, operator, valueSrc);
-      let widgetDefinition = getFieldWidgetConfig(config, field, operator, widget, valueSrc);
+      let widget = getWidgetForFieldOp(config, field, operator, valueSrc, isFunc);
+      let widgetDefinition = getFieldWidgetConfig(config, field, operator, widget, valueSrc,isFunc);
       if (isSpecialRangeForSrcField) {
         widget = widgetDefinition.singleWidget;
-        widgetDefinition = getFieldWidgetConfig(config, field, operator, widget, valueSrc);
+        widgetDefinition = getFieldWidgetConfig(config, field, operator, widget, valueSrc,isFunc);
       }
       const widgetType = widgetDefinition?.type;
       const valueLabel = getValueLabel(config, field, operator, delta, valueSrc, isTrueSpecialRange);
