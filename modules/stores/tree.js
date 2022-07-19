@@ -474,7 +474,7 @@ const setField = (state, path, newField, config) => {
         argMap = argMap.set("valueSrc", newArg.valueSrc);
         argMap = argMap.set("valueType", newArg.valueType);
         argMap = argMap.set("value", newArg.value);
-        newArgs.push(argMap);
+        newArgs = newArgs.push(argMap);
       }
 
       state = state.setIn(expandTreePath(path, "properties", "args"), newArgs);

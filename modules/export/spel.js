@@ -305,7 +305,12 @@ const formatRule = (item, config, meta, parentField = null) => {
       const argValue = argConfig.has('value')?argConfig.get('value'):null;
       const argType = argConfig.has('valueType')?argConfig.get('valueType'):null;
       if(argType==='text'){
-        args.push(`'${argValue}'`);
+        if(argValue === null){
+          args.push('null');
+        }else{
+          args.push(`'${argValue}'`);
+        }
+        
       }else if(argType==='null'){
         args.push('null');
       }else{
